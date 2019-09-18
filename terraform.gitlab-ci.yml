@@ -8,7 +8,7 @@ image:
 variables:
   PLAN: plan.tfplan
   TF_IN_AUTOMATION: "true"
-  TF_CLI_CONFIG_FILE: ${TF_CLI_CONFIG_FILE}
+  TF_CLI_CONFIG_FILE: ${TF_CLI_CONFIG_LOCATION}
 
 cache:
   key: "$CI_COMMIT_REF_SLUG"
