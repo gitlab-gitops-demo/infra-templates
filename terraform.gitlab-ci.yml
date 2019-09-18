@@ -6,7 +6,6 @@ image:
 
 # Default output file for Terraform plan
 variables:
-  PLAN: plan.tfplan
   TF_IN_AUTOMATION: "true"
 
 cache:
@@ -41,9 +40,8 @@ validate:
 merge review:
   stage: plan
   script:
-    - terraform plan -out=$PLAN
+    - terraform plan | tee -a plan.txt
     - echo \`\`\`diff > plan.txt
-    - terraform show -no-color ${PLAN} | tee -a plan.txt
     - echo \`\`\` >> plan.txt
     - sed -i -e 's/  +/+/g' plan.txt
     - sed -i -e 's/  ~/~/g' plan.txt
@@ -56,25 +54,25 @@ merge review:
   artifacts:
     name: plan
     paths:
-      - $PLAN
+      - plan.txt
   only:
     - merge_requests
 
 plan production:
   stage: plan
   script:
-    - terraform plan -out=$PLAN
+    - terraform plan | tee -a plan.txt
   artifacts:
     name: plan
     paths:
-      - $PLAN
+      - plan.txt
   only:
     - master
 
 apply:
   stage: apply
   script:
-    - terraform apply -input=false $PLAN
+    - terraform apply -input=false
   dependencies:
     - plan production
   artifacts:
