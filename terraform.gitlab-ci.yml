@@ -15,9 +15,7 @@ cache:
     - .terraform
 
 before_script:
-  - ls -la ${TF_CLI_CONFIG_LOCATION}
   - export TF_CLI_CONFIG_FILE=${TF_CLI_CONFIG_LOCATION}
-  - echo $TF_CLI_CONFIG_FILE
   - terraform --version
   - terraform init
   - apk add --update curl
