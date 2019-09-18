@@ -8,7 +8,6 @@ image:
 variables:
   PLAN: plan.tfplan
   TF_IN_AUTOMATION: "true"
-  TF_CLI_CONFIG_FILE: ${TF_CLI_CONFIG_LOCATION}
 
 cache:
   key: "$CI_COMMIT_REF_SLUG"
@@ -17,6 +16,7 @@ cache:
 
 before_script:
   - ls -la ${TF_CLI_CONFIG_LOCATION}
+  - export TF_CLI_CONFIG_FILE=${TF_CLI_CONFIG_LOCATION}
   - echo $TF_CLI_CONFIG_FILE
   - terraform --version
   - terraform init
