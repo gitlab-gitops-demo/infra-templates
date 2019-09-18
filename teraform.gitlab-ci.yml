@@ -75,7 +75,7 @@ apply:
   script:
     - terraform apply -input=false $PLAN
   dependencies:
-    - build
+    - plan production
   artifacts:
     name: $CI_COMMIT_REF_SLUG
     untracked: true
