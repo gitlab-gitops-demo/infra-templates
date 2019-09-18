@@ -7,6 +7,7 @@ image:
 # Default output file for Terraform plan
 variables:
   PLAN: plan.tfplan
+  TF_IN_AUTOMATION: "true"
 
 cache:
   key: "$CI_COMMIT_REF_SLUG"
@@ -36,7 +37,7 @@ validate:
   only:
     - branches
 
-plan:
+merge review:
   stage: plan
   script:
     - terraform plan -out=$PLAN
@@ -58,7 +59,7 @@ plan:
   only:
     - merge_requests
 
-build:
+plan production:
   stage: plan
   script:
     - terraform plan -out=$PLAN
