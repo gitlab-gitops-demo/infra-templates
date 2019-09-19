@@ -6,6 +6,7 @@ image:
 
 # Default output file for Terraform plan
 variables:
+  PLAN: plan.tfplan
   TF_IN_AUTOMATION: "true"
 
 cache:
@@ -14,7 +15,6 @@ cache:
     - .terraform
 
 before_script:
-  - export TF_CLI_CONFIG_FILE=${TF_CLI_CONFIG_LOCATION}
   - terraform --version
   - terraform init
   - apk add --update curl
@@ -40,8 +40,9 @@ validate:
 merge review:
   stage: plan
   script:
-    - terraform plan | tee -a plan.txt
+    - terraform plan -out=$PLAN
     - echo \`\`\`diff > plan.txt
+    - terraform show -no-color ${PLAN} | tee -a plan.txt
     - echo \`\`\` >> plan.txt
     - sed -i -e 's/  +/+/g' plan.txt
     - sed -i -e 's/  ~/~/g' plan.txt
@@ -54,25 +55,25 @@ merge review:
   artifacts:
     name: plan
     paths:
-      - plan.txt
+      - $PLAN
   only:
     - merge_requests
 
 plan production:
   stage: plan
   script:
-    - terraform plan | tee -a plan.txt
+    - terraform plan -out=$PLAN
   artifacts:
     name: plan
     paths:
-      - plan.txt
+      - $PLAN
   only:
     - master
 
 apply:
   stage: apply
   script:
-    - terraform apply -input=false
+    - terraform apply -input=false $PLAN
   dependencies:
     - plan production
   artifacts:
