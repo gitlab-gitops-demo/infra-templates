@@ -27,7 +27,6 @@ stages:
   - validate
   - plan
   - apply
-  - deploy-apps
   - destroy
 
 validate:
