@@ -70,6 +70,7 @@ plan production:
       - $PLAN
   only:
     - master
+  resource_group: production
 
 apply:
   stage: apply
