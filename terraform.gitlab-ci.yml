@@ -82,6 +82,11 @@ apply:
     untracked: true
   only:
     - master
+  resource_group: production
+
+deploy-apps:
+  stage: deploy
+  trigger: gitops-demo/apps/cluster-management
 
 destroy:
   stage: destroy
