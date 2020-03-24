@@ -76,14 +76,22 @@ apply:
   stage: apply
   script:
     - terraform apply -input=false $PLAN
+    - DYNAMIC_ENVIRONMENT_URL=$(terraform output -no-color env-dynamic-url)
+    - echo "DYNAMIC_ENVIRONMENT_URL=$DYNAMIC_ENVIRONMENT_URL" >> deploy.env
   dependencies:
     - plan production
   artifacts:
     name: $CI_COMMIT_REF_SLUG
     untracked: true
+    reports:
+      dotenv: deploy.env
   only:
     - master
   resource_group: production
+  environment:
+    name: production
+    url: $DYNAMIC_ENVIRONMENT_URL
+    on_stop: destroy
 
 deploy-apps:
   stage: deploy
@@ -96,3 +104,6 @@ destroy:
   when: manual
   only:
     - master  
+  environment:
+    name: production
+    action: stop
