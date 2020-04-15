@@ -98,6 +98,8 @@ deploy-apps:
   variables:
     APP_ENVIRONMENT: $CI_PROJECT_NAME
   trigger: gitops-demo/apps/cluster-management
+  only:
+    - master
 
 destroy:
   stage: destroy
