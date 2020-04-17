@@ -1,4 +1,6 @@
-image: alpine:latest
+image: alpine/helm:3.1.2
 
 test:
-  script: echo hello
+  script:
+    - helm --version
+    - helm registry login -p ${CI_REGISTRY_PASSWORD} -u ${CI_REGISTRY_USER} ${CI_REGISTRY} 
