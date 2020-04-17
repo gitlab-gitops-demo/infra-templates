@@ -2,5 +2,5 @@ image: alpine/helm:3.1.2
 
 test:
   script:
-    - helm --version
+    - helm version
     - helm registry login -p ${CI_REGISTRY_PASSWORD} -u ${CI_REGISTRY_USER} ${CI_REGISTRY} 
