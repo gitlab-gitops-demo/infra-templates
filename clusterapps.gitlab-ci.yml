@@ -1,0 +1,4 @@
+image: alpine:latest
+
+test:
+  script: echo hello
