@@ -7,6 +7,7 @@ image:
 # Default output file for Terraform plan
 variables:
   PLAN: plan.tfplan
+  JSON_PLAN_FILE: tfplan.json
   TF_IN_AUTOMATION: "true"
 
 cache:
@@ -15,7 +16,8 @@ cache:
     - .terraform
 
 before_script:
-  - apk add --update curl
+  - apk add --update curl jq
+  - alias convert_report="jq -r '([.resource_changes[].change.actions?]|flatten)|{\"create\":(map(select(.==\"create\"))|length),\"update\":(map(select(.==\"update\"))|length),\"delete\":(map(select(.==\"delete\"))|length)}'"
   - curl -o kubectl https://amazon-eks.s3-us-west-2.amazonaws.com/1.14.6/2019-08-22/bin/linux/amd64/kubectl
   - install kubectl /usr/local/bin/ && rm kubectl
   - curl -o aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.14.6/2019-08-22/bin/linux/amd64/aws-iam-authenticator
@@ -42,6 +44,7 @@ merge review:
   stage: plan
   script:
     - terraform plan -out=$PLAN
+    - "terraform show --json $PLAN | convert_report > $JSON_PLAN_FILE"
     - echo \`\`\`diff > plan.txt
     - terraform show -no-color ${PLAN} | tee -a plan.txt
     - echo \`\`\` >> plan.txt
@@ -57,6 +60,8 @@ merge review:
     name: plan
     paths:
       - $PLAN
+    reports:
+        terraform: $JSON_PLAN_FILE
   only:
     - merge_requests
 
