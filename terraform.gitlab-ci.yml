@@ -40,6 +40,20 @@ validate:
   only:
     - branches
 
+tfsec:
+  image: 
+    name: wesleydeanflexion/tfsec
+    entrypoint:
+      - '/usr/bin/env'
+      - 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/go/bin'
+  stage: plan
+  before_script:
+    - tfsec -v
+  script: tfsec . -f json | tee gl-sast-report.json
+  artifacts:
+    reports:
+      sast: gl-sast-report.json
+
 merge review:
   stage: plan
   script:
