@@ -22,6 +22,19 @@ before_script:
   - install kubectl /usr/local/bin/ && rm kubectl
   - curl -o aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.14.6/2019-08-22/bin/linux/amd64/aws-iam-authenticator
   - install aws-iam-authenticator /usr/local/bin/ && rm aws-iam-authenticator
+  - curl -s -O https://releases.hashicorp.com/envconsul/0.9.3/envconsul_0.9.3_linux_amd64.tgz
+  - echo "fc48c15851119cf5bd6ecc609b6e2b15ece0c7b4d294c8d1890fddeae36a7aaa  envconsul_0.9.3_linux_amd64.tgz" |sha256sum -c
+  - tar -xzvf envconsul_0.9.3_linux_amd64.tgz
+  - install envconsul /usr/local/bin && rm envconsul
+  - "export VAULT_TOKEN=$(curl -s --request POST --data '{\"jwt\": \"'$CI_JOB_JWT'\"}' $VAULT_ADDR/v1/auth/jwt/login | jq -r '.auth.client_token')"
+  - alias vaultrun="envconsul -once -config .vault/envconsul.hcl"
+  - >- 
+    if [ -z "$VAULT_TOKEN" ]
+    then
+      echo "\$VAULT_TOKEN is empty"
+    else
+      echo "\$VAULT_TOKEN is NOT empty"
+    fi
   - terraform --version
   - terraform init
 
@@ -35,41 +48,16 @@ stages:
 validate:
   stage: validate
   script:
-    - terraform validate
+    - vaultrun terraform validate
     - terraform fmt -check=true
   only:
     - branches
 
-tfsec:
-  image: 
-    name: wesleydeanflexion/tfsec
-    entrypoint:
-      - '/usr/bin/env'
-      - 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/go/bin'
-  stage: plan
-  before_script:
-    - tfsec -v
-  script: tfsec . -f json | tee gl-sast-report.json
-  artifacts:
-    reports:
-      sast: gl-sast-report.json
-
 merge review:
   stage: plan
   script:
-    - terraform plan -out=$PLAN
+    - vaultrun terraform plan -out=$PLAN
     - "terraform show --json $PLAN | convert_report > $JSON_PLAN_FILE"
-    - echo \`\`\`diff > plan.txt
-    - terraform show -no-color ${PLAN} | tee -a plan.txt
-    - echo \`\`\` >> plan.txt
-    - sed -i -e 's/  +/+/g' plan.txt
-    - sed -i -e 's/  ~/~/g' plan.txt
-    - sed -i -e 's/  -/-/g' plan.txt
-    - MESSAGE=$(cat plan.txt)
-    - >-
-      curl -X POST -g -H "PRIVATE-TOKEN: ${GITLAB_TOKEN}" 
-      --data-urlencode "body=${MESSAGE}" 
-      "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/merge_requests/${CI_MERGE_REQUEST_IID}/discussions"
   artifacts:
     name: plan
     paths:
@@ -82,7 +70,7 @@ merge review:
 plan production:
   stage: plan
   script:
-    - terraform plan -out=$PLAN
+    - vaultrun terraform plan -out=$PLAN
   artifacts:
     name: plan
     paths:
@@ -94,14 +82,13 @@ plan production:
 apply:
   stage: apply
   script:
-    - terraform apply -input=false $PLAN
+    - vaultrun terraform apply -input=false $PLAN
     - DYNAMIC_ENVIRONMENT_URL=$(terraform output -no-color env-dynamic-url)
     - echo "DYNAMIC_ENVIRONMENT_URL=$DYNAMIC_ENVIRONMENT_URL" >> deploy.env
   dependencies:
     - plan production
   artifacts:
     name: $CI_COMMIT_REF_SLUG
-    untracked: true
     reports:
       dotenv: deploy.env
   only:
@@ -123,7 +110,7 @@ deploy-apps:
 destroy:
   stage: destroy
   script:
-    - terraform destroy -auto-approve
+    - vaultrun terraform destroy -auto-approve
   when: manual
   only:
     - master  
