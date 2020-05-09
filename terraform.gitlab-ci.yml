@@ -15,12 +15,6 @@ cache:
   paths:
     - .terraform
 
-.aws-k8s-bins: &aws-k8s-bins
-  - curl -o kubectl https://amazon-eks.s3-us-west-2.amazonaws.com/1.14.6/2019-08-22/bin/linux/amd64/kubectl
-  - install kubectl /usr/local/bin/ && rm kubectl
-  - curl -o aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.14.6/2019-08-22/bin/linux/amd64/aws-iam-authenticator
-  - install aws-iam-authenticator /usr/local/bin/ && rm aws-iam-authenticator
-
 .envconsul: &envconsul
   - curl -s -O https://releases.hashicorp.com/envconsul/0.9.3/envconsul_0.9.3_linux_amd64.tgz
   - echo "fc48c15851119cf5bd6ecc609b6e2b15ece0c7b4d294c8d1890fddeae36a7aaa  envconsul_0.9.3_linux_amd64.tgz" |sha256sum -c
@@ -39,7 +33,6 @@ cache:
 before_script:
   - apk add --update curl jq
   - alias convert_report="jq -r '([.resource_changes[].change.actions?]|flatten)|{\"create\":(map(select(.==\"create\"))|length),\"update\":(map(select(.==\"update\"))|length),\"delete\":(map(select(.==\"delete\"))|length)}'"
-  #- *aws-k8s-bins
   - *envconsul
   - terraform --version
   - terraform init
