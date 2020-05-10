@@ -21,7 +21,7 @@ cache:
   - tar -xzvf envconsul_0.9.3_linux_amd64.tgz
   - install envconsul /usr/local/bin && rm envconsul
   - "export VAULT_TOKEN=$(curl -s --request POST --data '{\"jwt\": \"'$CI_JOB_JWT'\"}' $VAULT_ADDR/v1/auth/jwt/login | jq -r '.auth.client_token')"
-  - alias vaultrun="envconsul -once -config .vault/envconsul.hcl"
+  - alias terraform="envconsul -once -config .vault/envconsul.hcl terraform"
   - >- 
     if [ -z "$VAULT_TOKEN" ]; then
       echo "\$VAULT_TOKEN is empty"
@@ -47,7 +47,7 @@ stages:
 validate:
   stage: validate
   script:
-    - vaultrun terraform validate
+    - terraform validate
     - terraform fmt -check=true
   only:
     - branches
@@ -55,7 +55,7 @@ validate:
 merge review:
   stage: plan
   script:
-    - vaultrun terraform plan -out=$PLAN
+    - terraform plan -out=$PLAN
     - "terraform show --json $PLAN | convert_report > $JSON_PLAN_FILE"
   artifacts:
     name: plan
@@ -69,7 +69,7 @@ merge review:
 plan production:
   stage: plan
   script:
-    - vaultrun terraform plan -out=$PLAN
+    - terraform plan -out=$PLAN
   artifacts:
     name: plan
     paths:
@@ -81,7 +81,7 @@ plan production:
 apply:
   stage: apply
   script:
-    - vaultrun terraform apply -input=false $PLAN
+    - terraform apply -input=false $PLAN
     - DYNAMIC_ENVIRONMENT_URL=$(terraform output -no-color env-dynamic-url)
     - echo "DYNAMIC_ENVIRONMENT_URL=$DYNAMIC_ENVIRONMENT_URL" >> deploy.env
   dependencies:
@@ -109,7 +109,7 @@ deploy-apps:
 destroy:
   stage: destroy
   script:
-    - vaultrun terraform destroy -auto-approve
+    - terraform destroy -auto-approve
   when: manual
   only:
     - master  
