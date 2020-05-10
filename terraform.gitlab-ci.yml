@@ -27,11 +27,12 @@ cache:
   - install envconsul /usr/local/bin && rm envconsul
   - "export VAULT_TOKEN=$(curl -s --request POST --data '{\"jwt\": \"'$CI_JOB_JWT'\"}' $VAULT_ADDR/v1/auth/jwt/login | jq -r '.auth.client_token')"
   - >- 
-    if [ ${#VAULT_TOKEN} -le 10 ]; then
-      echo "\$VAULT_TOKEN is too short, could be a bad login."
+    if [ -z $VAULT_TOKEN ]; then
+      echo "\$VAULT_TOKEN is empty, could be a bad login."
     else
-      echo "\$VAULT_TOKEN is NOT too short, attempting to get secrets"
-      export $(envconsul -once -pristine -config .vault/envconsul.hcl env)
+      echo "\$VAULT_TOKEN is NOT empty, attempting to get secrets"
+      export $(envconsul -no-prefix -once -pristine -secret=secret/infrastructure/terraform env)
+      alias terraform="envconsul -once -config .vault/envconsul.hcl terraform"
     fi
 
 .gitlab-tf-backend: &gitlab-tf-backend
