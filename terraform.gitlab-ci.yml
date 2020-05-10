@@ -26,12 +26,12 @@ cache:
   - tar -xzvf envconsul_0.9.3_linux_amd64.tgz
   - install envconsul /usr/local/bin && rm envconsul
   - "export VAULT_TOKEN=$(curl -s --request POST --data '{\"jwt\": \"'$CI_JOB_JWT'\"}' $VAULT_ADDR/v1/auth/jwt/login | jq -r '.auth.client_token')"
-  - alias terraform="envconsul -once -config .vault/envconsul.hcl terraform"
   - >- 
     if [ ${#VAULT_TOKEN} -le 10 ]; then
       echo "\$VAULT_TOKEN is too short, could be a bad login."
     else
       echo "\$VAULT_TOKEN is NOT too short, attempting to get secrets"
+      export $(envconsul -once -pristine -config .vault/envconsul.hcl env)
     fi
 
 
