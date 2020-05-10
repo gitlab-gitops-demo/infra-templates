@@ -34,6 +34,10 @@ cache:
       export $(envconsul -once -pristine -config .vault/envconsul.hcl env)
     fi
 
+.gitlab-tf-backend: &gitlab-tf-backend
+  - export GITLAB_TF_ADDRESS="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/${CI_PROJECT_NAME}"
+  - terraform --version
+  - terraform init -reconfigure -backend-config="address=${GITLAB_TF_ADDRESS}" -backend-config="lock_address=${GITLAB_TF_ADDRESS}/lock" -backend-config="unlock_address=${GITLAB_TF_ADDRESS}/lock" -backend-config="username=tf" -backend-config="password=${GITLAB_TOKEN}" -backend-config="lock_method=POST" -backend-config="unlock_method=DELETE" -backend-config="retry_wait_min=5"
 
 .tf-cloud-backend: &tf-cloud-backend
   - terraform --version
