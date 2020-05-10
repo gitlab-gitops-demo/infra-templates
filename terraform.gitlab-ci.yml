@@ -36,7 +36,7 @@ cache:
 
 
 .tf-cloud-backend: &tf-cloud-backend
-  - envconsul -once -config .vault/envconsul.hcl "echo ${TF_CLI_CONFIG} > ${CI_BUILDS_DIR}/.terraformrc"
+  - envconsul -once -config .vault/envconsul.hcl echo ${TF_CLI_CONFIG} > ${CI_BUILDS_DIR}/.terraformrc
   - export TF_CLI_CONFIG_FILE="$CI_BUILDS_DIR/.terraformrc"
   - terraform --version
   - terraform init
