@@ -47,7 +47,7 @@ cache:
 before_script:
   - *install-curl-jq
   - *envconsul
-  - *tf-cloud-backend
+  - *gitlab-tf-backend
 
 stages:
   - validate
