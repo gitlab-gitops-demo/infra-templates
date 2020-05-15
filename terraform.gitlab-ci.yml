@@ -48,7 +48,6 @@ cache:
 before_script:
   - *install-curl-jq
   - *envconsul
-  - sleep 300
   - *gitlab-tf-backend
 
 stages:
