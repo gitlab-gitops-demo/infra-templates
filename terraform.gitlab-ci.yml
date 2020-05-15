@@ -48,8 +48,8 @@ cache:
 before_script:
   - *install-curl-jq
   - *envconsul
-  - *gitlab-tf-backend
   - sleep 300
+  - *gitlab-tf-backend
 
 stages:
   - validate
