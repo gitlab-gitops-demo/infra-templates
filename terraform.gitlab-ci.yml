@@ -31,8 +31,6 @@ cache:
       echo "\$VAULT_TOKEN is empty, could be a bad login."
     else
       echo "\$VAULT_TOKEN is NOT empty, attempting to get secrets"
-      export $(envconsul -no-prefix -once -pristine -secret=secret/infrastructure/terraform env)
-      export $(envconsul -no-prefix -once -pristine -secret=secret/infrastructure/gitlab env)
       alias terraform="envconsul -once -config .vault/envconsul.hcl terraform"
     fi
 
@@ -40,11 +38,7 @@ cache:
   - export GITLAB_TF_ADDRESS="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/${CI_PROJECT_NAME}"
   - echo "Attempting to use backend address $GITLAB_TF_ADDRESS"
   - terraform --version
-  - terraform init -reconfigure -backend-config="password=${GITLAB_TOKEN}"
-
-.tf-cloud-backend: &tf-cloud-backend
-  - terraform --version
-  - terraform init -reconfigure -backend-config="token=${TF_CLOUD_TOKEN}"
+  - terraform init -reconfigure -backend-config="username=gitlab-ci-token" -backend-config="password=${CI_JOB_TOKEN}"
 
 before_script:
   - *install-curl-jq
@@ -74,8 +68,6 @@ merge review:
   artifacts:
     expire_in: 1 week
     name: plan
-    paths:
-      - $PLAN
     reports:
         terraform: $JSON_PLAN_FILE
   only:
@@ -84,12 +76,7 @@ merge review:
 plan production:
   stage: plan
   script:
-    - terraform plan -out=$PLAN
-  artifacts:
-    expire_in: 1 week
-    name: plan
-    paths:
-      - $PLAN
+    - terraform plan
   only:
     - master
   resource_group: production
@@ -97,7 +84,7 @@ plan production:
 apply:
   stage: apply
   script:
-    - terraform apply -input=false $PLAN
+    - terraform apply -auto-approve
     - DYNAMIC_ENVIRONMENT_URL=$(terraform output -no-color env-dynamic-url)
     - echo "DYNAMIC_ENVIRONMENT_URL=$DYNAMIC_ENVIRONMENT_URL" >> deploy.env
   dependencies:
