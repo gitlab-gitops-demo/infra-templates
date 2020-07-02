@@ -101,6 +101,7 @@ apply:
     name: production
     url: $DYNAMIC_ENVIRONMENT_URL
     on_stop: destroy
+    auto_stop_in: 12 hours
 
 deploy-apps:
   stage: deploy
