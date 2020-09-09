@@ -35,6 +35,7 @@ cache:
     fi
 
 .gitlab-tf-backend: &gitlab-tf-backend
+  - echo "Test TF_HTTP_ADDRESS = $TF_HTTP_ADDRESS"
   - export GITLAB_TF_ADDRESS="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/${CI_PROJECT_NAME}"
   - echo "Attempting to use backend address $GITLAB_TF_ADDRESS"
   - terraform --version
