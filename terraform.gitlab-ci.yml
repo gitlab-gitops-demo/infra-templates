@@ -9,15 +9,6 @@ variables:
   PLAN: plan.tfplan
   JSON_PLAN_FILE: tfplan.json
   TF_IN_AUTOMATION: "true"
-  TF_ADDRESS: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/production
-  TF_HTTP_ADDRESS: ${TF_ADDRESS}
-  TF_HTTP_LOCK_ADDRESS: ${TF_ADDRESS}/lock
-  TF_HTTP_LOCK_METHOD: POST
-  TF_HTTP_UNLOCK_ADDRESS: ${TF_ADDRESS}/lock
-  TF_HTTP_UNLOCK_METHOD: DELETE
-  TF_HTTP_USERNAME: gitlab-ci-token
-  TF_HTTP_PASSWORD: ${CI_JOB_TOKEN}
-  TF_HTTP_RETRY_WAIT_MIN: 5
 
 
 cache:
@@ -45,6 +36,16 @@ cache:
     fi
 
 .gitlab-tf-backend: &gitlab-tf-backend
+  - >-
+    export TF_ADDRESS=${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/production
+    export TF_HTTP_ADDRESS=${TF_ADDRESS}
+    export TF_HTTP_LOCK_ADDRESS=${TF_ADDRESS}/lock
+    export TF_HTTP_LOCK_METHOD=POST
+    export TF_HTTP_UNLOCK_ADDRESS=${TF_ADDRESS}/lock
+    export TF_HTTP_UNLOCK_METHOD=DELETE
+    export TF_HTTP_USERNAME=gitlab-ci-token
+    export TF_HTTP_PASSWORD=${CI_JOB_TOKEN}
+    export TF_HTTP_RETRY_WAIT_MIN=5
   - echo "Test TF_HTTP_ADDRESS = $TF_HTTP_ADDRESS"
   - terraform --version
   - terraform init -reconfigure
