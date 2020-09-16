@@ -9,6 +9,16 @@ variables:
   PLAN: plan.tfplan
   JSON_PLAN_FILE: tfplan.json
   TF_IN_AUTOMATION: "true"
+  TF_ADDRESS: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/production
+  TF_HTTP_ADDRESS: ${TF_ADDRESS}
+  TF_HTTP_LOCK_ADDRESS: ${TF_ADDRESS}/lock
+  TF_HTTP_LOCK_METHOD: POST
+  TF_HTTP_UNLOCK_ADDRESS: ${TF_ADDRESS}/lock
+  TF_HTTP_UNLOCK_METHOD: DELETE
+  TF_HTTP_USERNAME: gitlab-ci-token
+  TF_HTTP_PASSWORD: ${CI_JOB_TOKEN}
+  TF_HTTP_RETRY_WAIT_MIN: 5
+
 
 cache:
   key: "$CI_COMMIT_SHA"
@@ -36,10 +46,8 @@ cache:
 
 .gitlab-tf-backend: &gitlab-tf-backend
   - echo "Test TF_HTTP_ADDRESS = $TF_HTTP_ADDRESS"
-  - export GITLAB_TF_ADDRESS="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/${CI_PROJECT_NAME}"
-  - echo "Attempting to use backend address $GITLAB_TF_ADDRESS"
   - terraform --version
-  - terraform init -reconfigure -backend-config="username=gitlab-ci-token" -backend-config="password=${CI_JOB_TOKEN}"
+  - terraform init -reconfigure
 
 before_script:
   - *install-curl-jq
