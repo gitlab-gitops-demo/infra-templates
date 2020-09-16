@@ -45,7 +45,7 @@ cache:
   - export TF_HTTP_USERNAME=gitlab-ci-token
   - export TF_HTTP_PASSWORD=${CI_JOB_TOKEN}
   - export TF_HTTP_RETRY_WAIT_MIN=5
-  - echo "Test TF_HTTP_ADDRESS = $TF_HTTP_ADDRESS"
+  - echo "Using HTTP Backend at $TF_HTTP_ADDRESS"
   - terraform --version
   - terraform init -reconfigure
 
