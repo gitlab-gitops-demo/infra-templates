@@ -59,6 +59,7 @@ stages:
   - plan
   - apply
   - deploy
+  - destroy-apps
   - destroy
 
 validate:
@@ -130,3 +131,13 @@ destroy:
   environment:
     name: production
     action: stop
+
+destroy-gitlab-apps:
+  stage: destroy-apps
+  when: manual
+  variables:
+    APP_ENVIRONMENT: $CI_PROJECT_NAME
+    GITLAB_MANAGED_APPS_FILE: /builds/gitops-demo/apps/cluster-management/.gitlab/managed-apps/uninstall.yml
+  trigger: gitops-demo/apps/cluster-management
+  only:
+    - master
