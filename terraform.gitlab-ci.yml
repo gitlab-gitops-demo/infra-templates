@@ -86,6 +86,7 @@ merge review:
 
 plan production:
   stage: plan
+  extends: .secrets
   script:
     - terraform plan
   only:
@@ -94,6 +95,7 @@ plan production:
 
 apply:
   stage: apply
+  extends: .secrets
   script:
     - terraform apply -auto-approve
     - DYNAMIC_ENVIRONMENT_URL=$(terraform output -no-color env-dynamic-url)
@@ -124,6 +126,7 @@ deploy-apps:
 
 destroy:
   stage: destroy
+  extends: .secrets
   script:
     - terraform destroy -auto-approve
   when: manual
