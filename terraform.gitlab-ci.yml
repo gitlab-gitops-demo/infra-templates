@@ -61,6 +61,9 @@ stages:
   - destroy-apps
   - destroy
 
+.secrets:
+  script:
+
 validate:
   stage: validate
   script:
@@ -68,6 +71,7 @@ validate:
     - terraform fmt -check=true
   only:
     - branches
+    - merge_requests
 
 merge review:
   stage: plan
