@@ -51,7 +51,6 @@ cache:
 
 before_script:
   - *install-curl-jq
-  - *envconsul
   - *gitlab-tf-backend
 
 stages:
