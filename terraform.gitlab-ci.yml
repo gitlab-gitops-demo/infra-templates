@@ -118,6 +118,7 @@ deploy-apps:
 
 destroy:
   stage: destroy
+  needs: []
   extends: .secrets
   script:
     - *install-curl-jq
