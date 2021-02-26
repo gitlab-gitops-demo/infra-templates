@@ -10,7 +10,6 @@ variables:
   JSON_PLAN_FILE: tfplan.json
   TF_IN_AUTOMATION: "true"
 
-
 cache:
   key: "$CI_COMMIT_SHA"
   paths:
@@ -19,21 +18,6 @@ cache:
 .install-curl-jq: &install-curl-jq
   - apk add --update curl jq
   - alias convert_report="jq -r '([.resource_changes[].change.actions?]|flatten)|{\"create\":(map(select(.==\"create\"))|length),\"update\":(map(select(.==\"update\"))|length),\"delete\":(map(select(.==\"delete\"))|length)}'"
-
-.envconsul: &envconsul
-  - curl -s $VAULT_ADDR/v1/sys/seal-status
-  - curl -s -O https://releases.hashicorp.com/envconsul/0.9.3/envconsul_0.9.3_linux_amd64.tgz
-  - echo "fc48c15851119cf5bd6ecc609b6e2b15ece0c7b4d294c8d1890fddeae36a7aaa  envconsul_0.9.3_linux_amd64.tgz" |sha256sum -c
-  - tar -xzvf envconsul_0.9.3_linux_amd64.tgz
-  - install envconsul /usr/local/bin && rm envconsul
-  - "export VAULT_TOKEN=$(curl -s --request POST --data '{\"jwt\": \"'$CI_JOB_JWT'\"}' $VAULT_ADDR/v1/auth/jwt/login | jq -r '.auth.client_token')"
-  - >- 
-    if [ -z $VAULT_TOKEN ]; then
-      echo "\$VAULT_TOKEN is empty, could be a bad login."
-    else
-      echo "\$VAULT_TOKEN is NOT empty, attempting to get secrets"
-      alias terraform="envconsul -once -config .vault/envconsul.hcl terraform"
-    fi
 
 .gitlab-tf-backend: &gitlab-tf-backend
   - export TF_ADDRESS=${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/production
@@ -49,11 +33,6 @@ cache:
   - terraform --version
   - terraform init -reconfigure
 
-before_script:
-  - *install-curl-jq
-  - *envconsul
-  - *gitlab-tf-backend
-
 stages:
   - validate
   - plan
@@ -62,18 +41,27 @@ stages:
   - destroy-apps
   - destroy
 
+.secrets:
+  script:
+
 validate:
   stage: validate
+  extends: .secrets
   script:
+    - *install-curl-jq
+    - *gitlab-tf-backend
     - terraform validate
     - terraform fmt -check=true
   only:
     - branches
+    - merge_requests
 
 merge review:
   stage: plan
   extends: .secrets
   script:
+    - *install-curl-jq
+    - *gitlab-tf-backend
     - terraform plan -out=$PLAN
     - "terraform show --json $PLAN | convert_report > $JSON_PLAN_FILE"
   artifacts:
@@ -86,7 +74,10 @@ merge review:
 
 plan production:
   stage: plan
+  extends: .secrets
   script:
+    - *install-curl-jq
+    - *gitlab-tf-backend
     - terraform plan
   only:
     - master
@@ -94,7 +85,10 @@ plan production:
 
 apply:
   stage: apply
+  extends: .secrets
   script:
+    - *install-curl-jq
+    - *gitlab-tf-backend
     - terraform apply -auto-approve
     - DYNAMIC_ENVIRONMENT_URL=$(terraform output -no-color env-dynamic-url)
     - echo "DYNAMIC_ENVIRONMENT_URL=$DYNAMIC_ENVIRONMENT_URL" >> deploy.env
@@ -124,7 +118,10 @@ deploy-apps:
 
 destroy:
   stage: destroy
+  extends: .secrets
   script:
+    - *install-curl-jq
+    - *gitlab-tf-backend
     - terraform destroy -auto-approve
   when: manual
   only:
