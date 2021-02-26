@@ -62,6 +62,7 @@ stages:
 
 validate:
   stage: validate
+  extends: .secrets
   script:
     - *install-curl-jq
     - *gitlab-tf-backend
