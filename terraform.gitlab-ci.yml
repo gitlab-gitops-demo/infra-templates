@@ -49,10 +49,6 @@ cache:
   - terraform --version
   - terraform init -reconfigure
 
-before_script:
-  - *install-curl-jq
-  - *gitlab-tf-backend
-
 stages:
   - validate
   - plan
@@ -67,6 +63,8 @@ stages:
 validate:
   stage: validate
   script:
+    - *install-curl-jq
+    - *gitlab-tf-backend
     - terraform validate
     - terraform fmt -check=true
   only:
@@ -77,6 +75,8 @@ merge review:
   stage: plan
   extends: .secrets
   script:
+    - *install-curl-jq
+    - *gitlab-tf-backend
     - terraform plan -out=$PLAN
     - "terraform show --json $PLAN | convert_report > $JSON_PLAN_FILE"
   artifacts:
@@ -91,6 +91,8 @@ plan production:
   stage: plan
   extends: .secrets
   script:
+    - *install-curl-jq
+    - *gitlab-tf-backend
     - terraform plan
   only:
     - master
@@ -100,6 +102,8 @@ apply:
   stage: apply
   extends: .secrets
   script:
+    - *install-curl-jq
+    - *gitlab-tf-backend
     - terraform apply -auto-approve
     - DYNAMIC_ENVIRONMENT_URL=$(terraform output -no-color env-dynamic-url)
     - echo "DYNAMIC_ENVIRONMENT_URL=$DYNAMIC_ENVIRONMENT_URL" >> deploy.env
@@ -131,6 +135,8 @@ destroy:
   stage: destroy
   extends: .secrets
   script:
+    - *install-curl-jq
+    - *gitlab-tf-backend
     - terraform destroy -auto-approve
   when: manual
   only:
