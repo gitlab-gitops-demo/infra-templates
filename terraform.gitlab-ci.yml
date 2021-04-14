@@ -44,7 +44,7 @@ stages:
 .secrets:
   script:
 
-vault ping:
+.vault ping:
   image:
     name: vault:latest
     entrypoint:
