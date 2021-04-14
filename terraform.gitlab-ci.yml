@@ -45,6 +45,11 @@ stages:
   script:
 
 vault ping:
+  image:
+    name: vault:latest
+    entrypoint:
+        - '/usr/bin/env'
+        - 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
   stage: .pre
   image: valut:latest
   script:
