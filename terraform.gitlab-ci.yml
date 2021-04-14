@@ -44,6 +44,18 @@ stages:
 .secrets:
   script:
 
+vault ping:
+  stage: .pre
+  image: valut:latest
+  script:
+    - echo "Check status of $VAULT_ADDR"
+    - |
+      until vault status
+      do
+        echo "Vault returned error or sealed"
+        sleep 5
+      done
+
 validate:
   stage: validate
   extends: .secrets
