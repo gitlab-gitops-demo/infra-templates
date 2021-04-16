@@ -51,7 +51,6 @@ vault ping:
         - '/usr/bin/env'
         - 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
   stage: .pre
-  image: valut:latest
   script:
     - echo "Check status of $VAULT_ADDR"
     - |
