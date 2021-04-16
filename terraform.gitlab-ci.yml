@@ -44,9 +44,9 @@ stages:
 .secrets:
   script:
 
-.vault ping:
+vault ping:
   image:
-    name: vault:latest
+    name: hashicorp/vault:latest
     entrypoint:
         - '/usr/bin/env'
         - 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
