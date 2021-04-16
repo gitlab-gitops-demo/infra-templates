@@ -44,6 +44,23 @@ stages:
 .secrets:
   script:
 
+.vault ping:
+  image:
+    name: vault:latest
+    entrypoint:
+        - '/usr/bin/env'
+        - 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+  stage: .pre
+  image: valut:latest
+  script:
+    - echo "Check status of $VAULT_ADDR"
+    - |
+      until vault status
+      do
+        echo "Vault returned error or sealed"
+        sleep 5
+      done
+
 validate:
   stage: validate
   extends: .secrets
