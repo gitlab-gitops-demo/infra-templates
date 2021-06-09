@@ -59,6 +59,9 @@ vault ping:
         echo "Vault returned error or sealed"
         sleep 5
       done
+  rules:
+    - if: '$VAULT_ADDR'
+      when: always
 
 validate:
   stage: validate
