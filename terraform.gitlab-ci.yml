@@ -75,6 +75,21 @@ validate:
     - branches
     - merge_requests
 
+kics-scan:
+  image: 
+    name: checkmarx/kics:latest-alpine
+    entrypoint:
+      - '/usr/bin/env'
+  stage: validate
+  script:
+    - kics scan -q /app/bin/assets/queries -p ${PWD} --ignore-on-exit all --report-formats glsast -o ${PWD}/gl-sast-results.json
+  artifacts:
+    reports:
+      sast: gl-sast-results.json
+    when: always
+  only:
+    - merge_requests
+
 merge review:
   stage: plan
   extends: .secrets
