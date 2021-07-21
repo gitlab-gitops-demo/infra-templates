@@ -85,7 +85,7 @@ kics-scan:
     - kics scan -q /app/bin/assets/queries -p ${PWD} --ignore-on-exit all --report-formats glsast -o ${PWD}
   artifacts:
     reports:
-      sast: gl-sast-report.json
+      sast: gl-sast-results.json
     when: always
   allow_failure: true
 
