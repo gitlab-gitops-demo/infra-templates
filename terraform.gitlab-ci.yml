@@ -87,6 +87,7 @@ kics-scan:
     reports:
       sast: gl-sast-results.json
     when: always
+  allow_failure: true
 
 merge review:
   stage: plan
