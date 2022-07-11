@@ -6,9 +6,6 @@ variables:
   TF_STATE_NAME: default
   TF_CACHE_KEY: default
 
-.secrets:
-  script:
-
 vault ping:
   image:
     name: hashicorp/vault:latest
