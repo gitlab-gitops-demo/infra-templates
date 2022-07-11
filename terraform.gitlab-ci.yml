@@ -3,7 +3,7 @@ include:
 
 variables:
   TF_IN_AUTOMATION: "true"
-  TF_STATE_NAME: default
+  TF_STATE_NAME: production
   TF_CACHE_KEY: default
 
 vault ping:
@@ -33,6 +33,12 @@ build:
 
 deploy:
   extends: [.secrets, .terraform:deploy]
+  environment:
+    name: $TF_STATE_NAME
 
 destroy:
   extends: [.secrets, .terraform:deploy]
+  environment:
+    name: $TF_STATE_NAME
+    action: stop
+
