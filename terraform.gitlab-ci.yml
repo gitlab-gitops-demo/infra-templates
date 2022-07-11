@@ -27,3 +27,6 @@ vault ping:
 
 fmt:
   allow_failure: false
+
+destroy:
+    extends: .terraform:deploy
