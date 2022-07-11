@@ -37,7 +37,7 @@ deploy:
     name: $TF_STATE_NAME
 
 destroy:
-  extends: [.secrets, .terraform:deploy]
+  extends: [.secrets, .terraform:destroy]
   environment:
     name: $TF_STATE_NAME
     action: stop
