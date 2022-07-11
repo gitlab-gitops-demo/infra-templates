@@ -27,6 +27,3 @@ vault ping:
 
 fmt:
   allow_failure: false
-
-validate:
-  extends: .secrets
