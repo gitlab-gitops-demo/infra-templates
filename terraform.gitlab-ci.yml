@@ -28,5 +28,11 @@ vault ping:
 fmt:
   allow_failure: false
 
+build:
+  extends: [.secrets, .terraform:build]
+
+deploy:
+  extends: [.secrets, .terraform:deploy]
+
 destroy:
-    extends: .terraform:deploy
+  extends: [.secrets, .terraform:deploy]
