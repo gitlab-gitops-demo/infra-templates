@@ -1,6 +1,13 @@
 include:
   - template: Terraform.latest.gitlab-ci.yml
 
+stages:
+  - validate
+  - test
+  - build
+  - deploy
+  - cleanup
+
 variables:
   TF_IN_AUTOMATION: "true"
   TF_STATE_NAME: production
