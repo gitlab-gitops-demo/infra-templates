@@ -45,6 +45,7 @@ deploy:
 
 destroy:
   extends: [.secrets, .terraform:destroy]
+  needs: []
   environment:
     name: $TF_STATE_NAME
     action: stop
