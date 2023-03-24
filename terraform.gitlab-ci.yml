@@ -36,10 +36,16 @@ fmt:
   allow_failure: false
 
 build:
+  id_tokens:
+    GITOPS_DEMO_VAULT_JWT:
+      aud: "GITOPS-DEMO"
   extends: [.secrets, .terraform:build]
 
 deploy:
   extends: [.secrets, .terraform:deploy]
+  id_tokens:
+    GITOPS_DEMO_VAULT_JWT:
+      aud: "GITOPS-DEMO"
   environment:
     name: $TF_STATE_NAME
 
