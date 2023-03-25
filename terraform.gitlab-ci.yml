@@ -48,10 +48,15 @@ deploy:
       aud: "GITOPS-DEMO"
   environment:
     name: $TF_STATE_NAME
+    on_stop: destroy
+    auto_stop_in: 4 hours
 
 destroy:
   extends: [.secrets, .terraform:destroy]
   needs: []
+  id_tokens:
+    GITOPS_DEMO_VAULT_JWT:
+      aud: "GITOPS-DEMO"
   environment:
     name: $TF_STATE_NAME
     action: stop
