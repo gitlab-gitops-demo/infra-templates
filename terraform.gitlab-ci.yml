@@ -32,20 +32,20 @@ vault ping:
 fmt:
   allow_failure: false
 
-build:
+plan:
   id_tokens:
     GITOPS_DEMO_VAULT_JWT:
       aud: "GITOPS-DEMO"
-  extends: [.secrets]
+  extends: [.secrets, .opentofu:plan]
 
-deploy:
-  extends: [.secrets]
+apply:
+  extends: [.secrets, .opentofu:apply]
   id_tokens:
     GITOPS_DEMO_VAULT_JWT:
       aud: "GITOPS-DEMO"
 
 destroy:
-  extends: [.secrets]
+  extends: [.secrets, .opentofu:destroy]
   needs: []
   id_tokens:
     GITOPS_DEMO_VAULT_JWT:
