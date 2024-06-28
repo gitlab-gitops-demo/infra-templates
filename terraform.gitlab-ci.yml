@@ -28,26 +28,3 @@ vault ping:
   rules:
     - if: '$VAULT_ADDR'
       when: always
-
-fmt:
-  allow_failure: false
-
-plan:
-  id_tokens:
-    GITOPS_DEMO_VAULT_JWT:
-      aud: "GITOPS-DEMO"
-  extends: [.secrets, .opentofu:plan]
-
-apply:
-  extends: [.secrets, .opentofu:apply]
-  id_tokens:
-    GITOPS_DEMO_VAULT_JWT:
-      aud: "GITOPS-DEMO"
-
-destroy:
-  extends: [.secrets, .opentofu:destroy]
-  needs: []
-  id_tokens:
-    GITOPS_DEMO_VAULT_JWT:
-      aud: "GITOPS-DEMO"
-
