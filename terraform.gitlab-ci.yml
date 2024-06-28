@@ -8,17 +8,7 @@ include:
       opentofu_version: 1.7.1
       state_name: production
 
-stages:
-  - validate
-  - test
-  - build
-  - deploy
-  - cleanup
-
-variables:
-  TF_IN_AUTOMATION: "true"
-  TF_STATE_NAME: production
-  TF_CACHE_KEY: default
+stages: [validate, test, build, deploy, cleanup]
 
 vault ping:
   image:
@@ -46,25 +36,18 @@ build:
   id_tokens:
     GITOPS_DEMO_VAULT_JWT:
       aud: "GITOPS-DEMO"
-  extends: [.secrets, .terraform:build]
+  extends: [.secrets]
 
 deploy:
-  extends: [.secrets, .terraform:deploy]
+  extends: [.secrets]
   id_tokens:
     GITOPS_DEMO_VAULT_JWT:
       aud: "GITOPS-DEMO"
-  environment:
-    name: $TF_STATE_NAME
-    on_stop: destroy
-    auto_stop_in: 4 hours
 
 destroy:
-  extends: [.secrets, .terraform:destroy]
+  extends: [.secrets]
   needs: []
   id_tokens:
     GITOPS_DEMO_VAULT_JWT:
       aud: "GITOPS-DEMO"
-  environment:
-    name: $TF_STATE_NAME
-    action: stop
 
