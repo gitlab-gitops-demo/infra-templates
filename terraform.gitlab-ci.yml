@@ -1,17 +1,16 @@
 include:
-  - template: Terraform.latest.gitlab-ci.yml
+  - component: $CI_SERVER_FQDN/components/opentofu/full-pipeline@~latest
+    inputs:
+      # The version must currently be specified explicitly as an input,
+      # to find the correctly associated images. # This can be removed
+      # once https://gitlab.com/gitlab-org/gitlab/-/issues/438275 is solved.
+      version: latest
+      opentofu_version: 1.7.1
+      state_name: production
+  - template: Jobs/SAST-IaC.gitlab-ci.yml
 
-stages:
-  - validate
-  - test
-  - build
-  - deploy
-  - cleanup
 
-variables:
-  TF_IN_AUTOMATION: "true"
-  TF_STATE_NAME: production
-  TF_CACHE_KEY: default
+stages: [validate, test, build, deploy, cleanup]
 
 vault ping:
   image:
@@ -19,7 +18,7 @@ vault ping:
     entrypoint:
         - '/usr/bin/env'
         - 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
-  stage: .pre
+  stage: validate
   script:
     - echo "Check status of $VAULT_ADDR"
     - |
@@ -31,33 +30,3 @@ vault ping:
   rules:
     - if: '$VAULT_ADDR'
       when: always
-
-fmt:
-  allow_failure: false
-
-build:
-  id_tokens:
-    GITOPS_DEMO_VAULT_JWT:
-      aud: "GITOPS-DEMO"
-  extends: [.secrets, .terraform:build]
-
-deploy:
-  extends: [.secrets, .terraform:deploy]
-  id_tokens:
-    GITOPS_DEMO_VAULT_JWT:
-      aud: "GITOPS-DEMO"
-  environment:
-    name: $TF_STATE_NAME
-    on_stop: destroy
-    auto_stop_in: 4 hours
-
-destroy:
-  extends: [.secrets, .terraform:destroy]
-  needs: []
-  id_tokens:
-    GITOPS_DEMO_VAULT_JWT:
-      aud: "GITOPS-DEMO"
-  environment:
-    name: $TF_STATE_NAME
-    action: stop
-
