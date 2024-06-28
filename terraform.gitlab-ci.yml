@@ -7,6 +7,8 @@ include:
       version: latest
       opentofu_version: 1.7.1
       state_name: production
+  - template: Jobs/SAST-IaC.gitlab-ci.yml
+
 
 stages: [validate, test, build, deploy, cleanup]
 
